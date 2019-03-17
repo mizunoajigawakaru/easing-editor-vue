@@ -8,17 +8,44 @@
       </div>
       <svg class="bezier-curve" width="150" height="250">
         <g>
-          <line class="linear-line" x1="7" y1="193" x2="143" y2="57"></line>
-          <path class="bezier-path"></path>
-          <line class="bezier-control-line"></line>
-          <circle class="bezier-control-circle"></circle>
-          <line class="bezier-control-line"></line>
-          <circle class="bezier-control-circle"></circle>
+          <line
+            class="linear-line"
+            :x1="absolutelinearLinePoints[0]"
+            :y1="absolutelinearLinePoints[1]"
+            :x2="absolutelinearLinePoints[2]"
+            :y2="absolutelinearLinePoints[3]"
+          />
+
+          <path class="bezier-path" d="M7,193 C64.12, 193 85.88, 57 143, 57" />
+
+          <line class="bezier-control-line"
+            :x1="absoluteBeginControllerLinePoints[0]"
+            :y1="absoluteBeginControllerLinePoints[1]"
+            :x2="absoluteBeginControllerLinePoints[2]"
+            :y2="absoluteBeginControllerLinePoints[3]"
+          />
+          <circle class="bezier-control-circle"
+            :cx="absoluteBeginControllerPoints[0]"
+            :cy="absoluteBeginControllerPoints[1]"
+            r="7"
+          />
+
+          <line class="bezier-control-line"
+            :x1="absoluteEndControllerLinePoints[0]"
+            :y1="absoluteEndControllerLinePoints[1]"
+            :x2="absoluteEndControllerLinePoints[2]"
+            :y2="absoluteEndControllerLinePoints[3]"
+          />
+          <circle class="bezier-control-circle"
+            :cx="absoluteEndControllerPoints[0]"
+            :cy="absoluteEndControllerPoints[1]"
+            r="7"
+          />
         </g>
       </svg>
     </div>
     <div class="bezier-header">
-      <span class="source-code bezier-display-value">cubic-bezier(0.42, 0, 0.58, 1)</span>
+      <span class="source-code bezier-display-value">{{ displayValue }}</span>
     </div>
   </div>
 </template>
@@ -26,6 +53,75 @@
 <script>
 export default {
   name: 'EasingEditor',
+  data() {
+    return {
+      // [x1, y1, x2, y2]
+      value: [0.45, 0.05, 0.55, 0.95],
+      frame: {
+        width: 136,
+        height: 136,
+      },
+      offset: {
+        top: 57,
+        left: 7,
+      },
+      relativeLinearLinePoints: [0, 136, 136, 0],
+    };
+  },
+  computed: {
+    displayValue() {
+      return `cubic-bezier(${this.value.join(' ')})`;
+    },
+
+    positions() {
+      const { width, height } = this.frame;
+      const [px1, py1, px2, py2] = this.value;
+
+      const result = {
+        x1: width * px1,
+        y1: height - height * py1,
+        x2: width * px2,
+        y2: height - height * py2,
+      };
+
+      return result;
+    },
+
+    absolutelinearLinePoints() {
+      return this.getOffsetAppliedPoints(this.relativeLinearLinePoints);
+    },
+
+    absoluteBeginControllerPoints() {
+      const { x1, y1 } = this.positions;
+      return this.getOffsetAppliedPoints([x1, y1]);
+    },
+
+    absoluteBeginControllerLinePoints() {
+      const { height } = this.frame;
+      const { x1, y1 } = this.positions;
+      return this.getOffsetAppliedPoints([0, height, x1, y1]);
+    },
+
+    absoluteEndControllerPoints() {
+      const { x2, y2 } = this.positions;
+      return this.getOffsetAppliedPoints([x2, y2]);
+    },
+
+    absoluteEndControllerLinePoints() {
+      const { width } = this.frame;
+      const { x2, y2 } = this.positions;
+      return this.getOffsetAppliedPoints([width, 0, x2, y2]);
+    },
+  },
+  methods: {
+    getOffsetAppliedPoints(points) {
+      const result = points.map((point, index) => {
+        return index % 2 === 0 ? point + this.offset.left : point + this.offset.top;
+      });
+
+      return result;
+    }
+  },
 }
 </script>
 
@@ -61,6 +157,26 @@ export default {
     stroke-width: 2;
     stroke-linecap: round;
     fill: none;
+  }
+
+  path.bezier-path {
+    stroke: black;
+    stroke-width: 3;
+    stroke-linecap: round;
+    fill: none;
+  }
+
+  line.bezier-control-line {
+    stroke: #9C27B0;
+    stroke-width: 2;
+    stroke-linecap: round;
+    fill: none;
+    opacity: 0.6;
+  }
+
+  circle.bezier-control-circle {
+    fill: #9C27B0;
+    cursor: pointer;
   }
 }
 

@@ -1,17 +1,17 @@
 <template>
   <div id="app">
     <h1>Easing Editor</h1>
-    <HelloWorld />
+    <easing-editor />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/EasingEditor.vue'
+import EasingEditor from './components/EasingEditor.vue'
 
 export default {
   name: 'app',
   components: {
-    HelloWorld
+    EasingEditor
   }
 }
 </script>
