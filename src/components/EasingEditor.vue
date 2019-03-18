@@ -94,6 +94,7 @@ export default {
       // preset
       presets: presets.PRESET_VALUES,
       selectedPresetType: null,
+      cssDefinedEasing: null,
     };
   },
   created() {
@@ -103,7 +104,7 @@ export default {
   },
   computed: {
     displayValue() {
-      return `cubic-bezier(${this.cubicBezierValue.join(', ')})`;
+      return this.cssDefinedEasing ? this.cssDefinedEasing :`cubic-bezier(${this.cubicBezierValue.join(', ')})`;
     },
 
     linearLinePoints() {
@@ -133,6 +134,7 @@ export default {
       this.cubicBezierValue = value;
       this.setPositions(value);
       this.setCubicBezierPathData();
+      this.cssDefinedEasing = name;
     },
 
     setPositions(value) {
@@ -159,6 +161,16 @@ export default {
       ].map(number => formatNumber(number));
 
       this.cubicBezierValue = nextCubicBezierValue;
+
+      // set display value to css defined easing name if cubicBezierValue matches
+      this.presets.some(preset => {
+        if (isEqual(preset.value, nextCubicBezierValue)) {
+          this.cssDefinedEasing = preset.name;
+          return true;
+        } else {
+          this.cssDefinedEasing = null;
+        }
+      });
     },
 
     setCubicBezierPathData() {
@@ -193,6 +205,8 @@ export default {
         };
       }
 
+      this.selectedPresetType = null;
+      this.cssDefinedEasing = null;
       this.positions = { ...this.currentPositions };
       this.setCubicBezierValue();
       this.setCubicBezierPathData();
