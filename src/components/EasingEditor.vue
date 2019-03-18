@@ -2,9 +2,13 @@
   <div class="easing-editor">
     <div class="bezier-container">
       <div class="bezier-presets">
-        <div class="bezier-preset-category"></div>
-        <div class="bezier-preset-category"></div>
-        <div class="bezier-preset-category"></div>
+        <div
+          v-for="(preset, index) in presets"
+          :key="index"
+          class="bezier-preset-category"
+          @click="applyPreset(preset.value)"
+        >
+        </div>
       </div>
       <svg
         @mousemove="onDrag('bezier-curve', $event)"
@@ -59,6 +63,7 @@
 
 <script>
 import { isEqual } from 'lodash';
+import * as presets from '../constants/presets';
 
 export default {
   name: 'EasingEditor',
@@ -85,6 +90,8 @@ export default {
       relativeLinearLinePoints: [0, 136, 136, 0],
       dragStartPosition: null,
       lastMoveAmount: [0, 0],
+
+      presets: presets.PRESET_VALUES,
     };
   },
   created() {
@@ -116,6 +123,12 @@ export default {
   methods: {
     getDistance(x1, y1, x2, y2) {
       return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    },
+
+    applyPreset(value) {
+      this.cubicBezierValue = value;
+      this.setPositions(value);
+      this.setCubicBezierPathData();
     },
 
     setPositions(value) {
