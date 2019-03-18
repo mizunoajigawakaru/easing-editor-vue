@@ -1,5 +1,8 @@
 <template>
-  <div class="easing-editor">
+  <div
+    class="easing-editor"
+    :class="{ dragging: dragItemType }"
+  >
     <div class="bezier-container">
       <bezier-presets
         :preset-types="presetTypes"
@@ -8,12 +11,10 @@
         @apply-preset="applyPreset"
       />
       <svg
-        @mousemove="onDrag('bezier-curve', $event)"
-        @mousedown="dragstart('begin', $event)"
-        @mouseup="dragend('end')"
         class="bezier-curve"
         width="150"
         height="250"
+        @mousedown="dragstart('begin', $event)"
       >
         <g>
           <line
@@ -107,6 +108,7 @@ export default {
         left: 7,
       },
       relativeLinearLinePoints: [0, 136, 136, 0],
+      dragItemType: null,
       dragStartPosition: null,
       lastMoveAmount: [0, 0],
 
@@ -126,6 +128,14 @@ export default {
     this.cubicBezierValue = [...this.defaultValue];
     this.setPositions([...this.defaultValue]);
     this.setCubicBezierPathData();
+  },
+  mounted() {
+    window.addEventListener('mousemove', this.onDrag);
+    window.addEventListener('mouseup', this.dragend);
+  },
+  beforeDestroy() {
+    window.removeEventListener('mousemove', this.onDrag);
+    window.removeEventListener('mouseup', this.dragend);
   },
   computed: {
     displayValue() {
@@ -246,7 +256,7 @@ export default {
       this.setCubicBezierPathData();
     },
 
-    onDrag(item, e) {
+    onDrag(e) {
       if (!this.dragStartPosition) return;
 
       const [startX, startY] = this.dragStartPosition;
@@ -367,6 +377,10 @@ export default {
     line-height: 20px;
     text-align: center;
     white-space: nowrap;
+
+    .dragging & {
+      -webkit-user-select: none;
+    }
   }
 
   .bezier-preset-modify {
