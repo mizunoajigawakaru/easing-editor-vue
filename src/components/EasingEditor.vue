@@ -160,8 +160,10 @@ export default {
 
       // set display value to css defined easing name if cubicBezierValue matches
       this.presetTypes.some(preset => {
-        if (isEqual(preset.value, nextCubicBezierValue)) {
-          this.cssDefinedEasing = preset.name;
+        const presetConfig = presets.PRESET_LISTS[preset][0];
+
+        if (isEqual(presetConfig.value, nextCubicBezierValue)) {
+          this.cssDefinedEasing = presetConfig.name;
           return true;
         } else {
           this.cssDefinedEasing = null;
@@ -252,7 +254,6 @@ export default {
     },
 
     changePreset(count) {
-      console.log('changePreset', count);
       const currentIndex = this.selectedPresetIndex[this.selectedPresetType];
       const selectedPresetList = presets.PRESET_LISTS[this.selectedPresetType];
       const nextIndex = currentIndex + count === selectedPresetList.length
