@@ -23,7 +23,7 @@
             :y2="absolutelinearLinePoints[3]"
           />
 
-          <path class="bezier-path" d="M7,193 C64.12, 193 85.88, 57 143, 57" />
+          <path class="bezier-path" :d="cubicBezierPathData" />
 
           <line class="bezier-control-line"
             :x1="absoluteBeginControllerLinePoints[0]"
@@ -67,6 +67,7 @@ export default {
       // [x1, y1, x2, y2]
       defaultValue: [0.45, 0.05, 0.55, 0.95],
       cubicBezierValue: [0, 0, 0, 0],
+      cubicBezierPathData: '',
       positions: {
         beginX: 0,
         beginY: 0,
@@ -89,6 +90,7 @@ export default {
   created() {
     this.cubicBezierValue = [...this.defaultValue];
     this.setPositions([...this.defaultValue]);
+    this.setCubicBezierPathData();
   },
   computed: {
     displayValue() {
@@ -157,6 +159,14 @@ export default {
       this.cubicBezierValue = nextCubicBezierValue;
     },
 
+    setCubicBezierPathData() {
+      const [x1, y1, x2, y2] = this.absoluteBeginControllerLinePoints;
+      const [x3, y3, x4, y4] = this.absoluteEndControllerLinePoints;
+      const pathData = `M${x1} ${y1} C ${x2} ${y2}, ${x4} ${y4}, ${x3} ${y3}`;
+
+      this.cubicBezierPathData = pathData;
+    },
+
     dragstart(itemType, e) {
       this.dragStartPosition = [e.pageX, e.pageY];
 
@@ -191,6 +201,8 @@ export default {
       }
 
       this.positions = { ...this.currentPositions };
+      this.setCubicBezierValue();
+      this.setCubicBezierPathData();
     },
 
     onDrag(item, e) {
@@ -223,6 +235,7 @@ export default {
         }
 
         this.setCubicBezierValue();
+        this.setCubicBezierPathData();
       }
     },
 
