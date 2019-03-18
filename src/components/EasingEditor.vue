@@ -66,7 +66,7 @@ export default {
     return {
       // [x1, y1, x2, y2]
       defaultValue: [0.45, 0.05, 0.55, 0.95],
-      value: [0, 0, 0, 0],
+      cubicBezierValue: [0, 0, 0, 0],
       positions: {
         beginX: 0,
         beginY: 0,
@@ -87,12 +87,12 @@ export default {
     };
   },
   created() {
-    this.value = [...this.defaultValue];
+    this.cubicBezierValue = [...this.defaultValue];
     this.setPositions([...this.defaultValue]);
   },
   computed: {
     displayValue() {
-      return `cubic-bezier(${this.value.join(' ')})`;
+      return `cubic-bezier(${this.cubicBezierValue.join(', ')})`;
     },
 
     absolutelinearLinePoints() {
@@ -284,6 +284,7 @@ export default {
     display: block;
     width: 100%;
     text-align: center;
+    white-space: nowrap;
   }
 }
 
