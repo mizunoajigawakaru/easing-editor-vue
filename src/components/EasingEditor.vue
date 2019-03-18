@@ -6,7 +6,14 @@
         <div class="bezier-preset-category"></div>
         <div class="bezier-preset-category"></div>
       </div>
-      <svg class="bezier-curve" width="150" height="250">
+      <svg
+        @mousemove="onDrag('bezier-curve', $event)"
+        @mousedown="dragstart('begin', $event)"
+        @mouseup="dragend('end')"
+        class="bezier-curve"
+        width="150"
+        height="250"
+      >
         <g>
           <line
             class="linear-line"
@@ -51,12 +58,21 @@
 </template>
 
 <script>
+import { isEqual } from 'lodash';
+
 export default {
   name: 'EasingEditor',
   data() {
     return {
       // [x1, y1, x2, y2]
-      value: [0.45, 0.05, 0.55, 0.95],
+      defaultValue: [0.45, 0.05, 0.55, 0.95],
+      value: [0, 0, 0, 0],
+      positions: {
+        beginX: 0,
+        beginY: 0,
+        endX: 0,
+        endY: 0,
+      },
       frame: {
         width: 136,
         height: 136,
@@ -66,25 +82,17 @@ export default {
         left: 7,
       },
       relativeLinearLinePoints: [0, 136, 136, 0],
+      dragStartPosition: null,
+      lastMoveAmount: [0, 0],
     };
+  },
+  created() {
+    this.value = [...this.defaultValue];
+    this.setPositions([...this.defaultValue]);
   },
   computed: {
     displayValue() {
       return `cubic-bezier(${this.value.join(' ')})`;
-    },
-
-    positions() {
-      const { width, height } = this.frame;
-      const [px1, py1, px2, py2] = this.value;
-
-      const result = {
-        x1: width * px1,
-        y1: height - height * py1,
-        x2: width * px2,
-        y2: height - height * py2,
-      };
-
-      return result;
     },
 
     absolutelinearLinePoints() {
@@ -92,30 +100,118 @@ export default {
     },
 
     absoluteBeginControllerPoints() {
-      const { x1, y1 } = this.positions;
-      return this.getOffsetAppliedPoints([x1, y1]);
+      const { beginX, beginY } = this.positions;
+      return this.getOffsetAppliedPoints([beginX, beginY]);
     },
 
     absoluteBeginControllerLinePoints() {
       const { height } = this.frame;
-      const { x1, y1 } = this.positions;
-      return this.getOffsetAppliedPoints([0, height, x1, y1]);
+      const { beginX, beginY } = this.positions;
+      return this.getOffsetAppliedPoints([0, height, beginX, beginY]);
     },
 
     absoluteEndControllerPoints() {
-      const { x2, y2 } = this.positions;
-      return this.getOffsetAppliedPoints([x2, y2]);
+      const { endX, endY } = this.positions;
+      return this.getOffsetAppliedPoints([endX, endY]);
     },
 
     absoluteEndControllerLinePoints() {
       const { width } = this.frame;
-      const { x2, y2 } = this.positions;
-      return this.getOffsetAppliedPoints([width, 0, x2, y2]);
+      const { endX, endY } = this.positions;
+      return this.getOffsetAppliedPoints([width, 0, endX, endY]);
     },
   },
   methods: {
+    getDistance(x1, y1, x2, y2) {
+      return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    },
+
+    setPositions(value) {
+      const { width, height } = this.frame;
+      const [beginX, beginY, endX, endY] = value;
+
+      this.positions = {
+        beginX: width * beginX,
+        beginY: height - (height * beginY),
+        endX: width * endX,
+        endY: height - (height * endY),
+      };
+    },
+
+    dragstart(itemType, e) {
+      this.dragStartPosition = [e.pageX, e.pageY];
+
+      const distanceToBegin = this.getDistance(
+        e.offsetX - this.offset.left,
+        e.offsetY - this.offset.top,
+        this.positions.beginX,
+        this.positions.beginY,
+      );
+
+      const distanceToEnd = this.getDistance(
+        e.offsetX - this.offset.left,
+        e.offsetY - this.offset.top,
+        this.positions.endX,
+        this.positions.endY,
+      );
+
+      this.dragItemType = distanceToBegin < distanceToEnd ? 'begin' : 'end';
+
+      if (this.dragItemType === 'begin') {
+        this.currentPositions = {
+          ...this.positions,
+          beginX: e.offsetX - this.offset.left,
+          beginY: e.offsetY - this.offset.top,
+        };
+      } else {
+        this.currentPositions = {
+          ...this.positions,
+          endX: e.offsetX - this.offset.left,
+          endY: e.offsetY - this.offset.top,
+        };
+      }
+
+      this.positions = { ...this.currentPositions };
+    },
+
+    onDrag(item, e) {
+      if (this.dragStartPosition) {
+        const [startX, startY] = this.dragStartPosition;
+        const moveAmount = [startX - e.pageX, startY - e.pageY].map(value => ~value);
+
+        if (!isEqual(this.lastMoveAmount, moveAmount)) {
+          this.lastMoveAmount = moveAmount;
+
+          const [moveX, moveY] = moveAmount;
+
+          if (this.dragItemType === 'begin') {
+            const { beginX, beginY } = this.currentPositions;
+
+            this.positions = {
+              ...this.currentPositions,
+              beginX: this.currentPositions.beginX + moveX,
+              beginY: this.currentPositions.beginY + moveY,
+            };
+          } else {
+            const { endX, endY } = this.currentPositions;
+
+            this.positions = {
+              ...this.currentPositions,
+              endX: this.currentPositions.endX + moveX,
+              endY: this.currentPositions.endY + moveY,
+            };
+          }
+        }
+      }
+    },
+
+    dragend() {
+      this.dragItemType = null;
+      this.dragStartPosition = null;
+    },
+
     getOffsetAppliedPoints(points) {
-      const result = points.map((point, index) => {
+      const result = [...points].map((point, index) => {
         return index % 2 === 0 ? point + this.offset.left : point + this.offset.top;
       });
 
@@ -151,6 +247,7 @@ export default {
 .bezier-curve {
   margin-top: -8px;
   margin-left: 32px;
+  border: solid 1px rgba(#333, .2);
 
   line.linear-line {
     stroke: rgb(238, 238, 238);
