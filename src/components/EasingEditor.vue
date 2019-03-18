@@ -138,6 +138,25 @@ export default {
       };
     },
 
+    setCubicBezierValue() {
+      const {
+        beginX,
+        beginY,
+        endX,
+        endY,
+      } = this.positions;
+      const { width, height } = this.frame;
+      const formatNumber = number => Number(number.toFixed(2));
+      const nextCubicBezierValue = [
+        beginX / width,
+        (height - beginY) / height,
+        endX / width,
+        (height - endY) / height,
+      ].map(number => formatNumber(number));
+
+      this.cubicBezierValue = nextCubicBezierValue;
+    },
+
     dragstart(itemType, e) {
       this.dragStartPosition = [e.pageX, e.pageY];
 
@@ -202,6 +221,8 @@ export default {
             };
           }
         }
+
+        this.setCubicBezierValue();
       }
     },
 
