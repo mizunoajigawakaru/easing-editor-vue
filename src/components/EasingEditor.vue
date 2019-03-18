@@ -1,15 +1,10 @@
 <template>
   <div class="easing-editor">
     <div class="bezier-container">
-      <div class="bezier-presets">
-        <div
-          v-for="(preset, index) in presets"
-          :key="index"
-          class="bezier-preset-category"
-          @click="applyPreset(preset.value)"
-        >
-        </div>
-      </div>
+      <bezier-presets
+        :presets="presets"
+        @apply-preset="applyPreset"
+      />
       <svg
         @mousemove="onDrag('bezier-curve', $event)"
         @mousedown="dragstart('begin', $event)"
@@ -64,9 +59,13 @@
 <script>
 import { isEqual } from 'lodash';
 import * as presets from '../constants/presets';
+import BezierPresets from './BezierPresets.vue';
 
 export default {
   name: 'EasingEditor',
+  components: {
+    BezierPresets,
+  },
   data() {
     return {
       // [x1, y1, x2, y2]
@@ -251,15 +250,6 @@ export default {
 .bezier-container {
   display: flex;
   margin-top: 38px;
-}
-
-.bezier-presets {
-  .bezier-preset-category {
-    width: 50px;
-    height: 50px;
-    margin: 20px 0;
-    background-color: #f5f5f5;
-  }
 }
 
 .bezier-curve {
