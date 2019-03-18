@@ -17,35 +17,35 @@
         <g>
           <line
             class="linear-line"
-            :x1="absolutelinearLinePoints[0]"
-            :y1="absolutelinearLinePoints[1]"
-            :x2="absolutelinearLinePoints[2]"
-            :y2="absolutelinearLinePoints[3]"
+            :x1="linearLinePoints[0]"
+            :y1="linearLinePoints[1]"
+            :x2="linearLinePoints[2]"
+            :y2="linearLinePoints[3]"
           />
 
           <path class="bezier-path" :d="cubicBezierPathData" />
 
           <line class="bezier-control-line"
-            :x1="absoluteBeginControllerLinePoints[0]"
-            :y1="absoluteBeginControllerLinePoints[1]"
-            :x2="absoluteBeginControllerLinePoints[2]"
-            :y2="absoluteBeginControllerLinePoints[3]"
+            :x1="beginPoints[0]"
+            :y1="beginPoints[1]"
+            :x2="beginPoints[2]"
+            :y2="beginPoints[3]"
           />
           <circle class="bezier-control-circle"
-            :cx="absoluteBeginControllerPoints[0]"
-            :cy="absoluteBeginControllerPoints[1]"
+            :cx="beginPoints[2]"
+            :cy="beginPoints[3]"
             r="7"
           />
 
           <line class="bezier-control-line"
-            :x1="absoluteEndControllerLinePoints[0]"
-            :y1="absoluteEndControllerLinePoints[1]"
-            :x2="absoluteEndControllerLinePoints[2]"
-            :y2="absoluteEndControllerLinePoints[3]"
+            :x1="endPoints[0]"
+            :y1="endPoints[1]"
+            :x2="endPoints[2]"
+            :y2="endPoints[3]"
           />
           <circle class="bezier-control-circle"
-            :cx="absoluteEndControllerPoints[0]"
-            :cy="absoluteEndControllerPoints[1]"
+            :cx="endPoints[2]"
+            :cy="endPoints[3]"
             r="7"
           />
         </g>
@@ -97,27 +97,17 @@ export default {
       return `cubic-bezier(${this.cubicBezierValue.join(', ')})`;
     },
 
-    absolutelinearLinePoints() {
+    linearLinePoints() {
       return this.getOffsetAppliedPoints(this.relativeLinearLinePoints);
     },
 
-    absoluteBeginControllerPoints() {
-      const { beginX, beginY } = this.positions;
-      return this.getOffsetAppliedPoints([beginX, beginY]);
-    },
-
-    absoluteBeginControllerLinePoints() {
+    beginPoints() {
       const { height } = this.frame;
       const { beginX, beginY } = this.positions;
       return this.getOffsetAppliedPoints([0, height, beginX, beginY]);
     },
 
-    absoluteEndControllerPoints() {
-      const { endX, endY } = this.positions;
-      return this.getOffsetAppliedPoints([endX, endY]);
-    },
-
-    absoluteEndControllerLinePoints() {
+    endPoints() {
       const { width } = this.frame;
       const { endX, endY } = this.positions;
       return this.getOffsetAppliedPoints([width, 0, endX, endY]);
@@ -155,8 +145,8 @@ export default {
     },
 
     setCubicBezierPathData() {
-      const [x1, y1, x2, y2] = this.absoluteBeginControllerLinePoints;
-      const [x3, y3, x4, y4] = this.absoluteEndControllerLinePoints;
+      const [x1, y1, x2, y2] = this.beginPoints;
+      const [x3, y3, x4, y4] = this.endPoints;
 
       this.cubicBezierPathData = `M${x1} ${y1} C ${x2} ${y2}, ${x4} ${y4}, ${x3} ${y3}`;
     },
