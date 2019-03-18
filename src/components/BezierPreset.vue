@@ -106,11 +106,24 @@ export default {
   border-radius: 3px;
   background-color: #f5f5f5;
 
-  line.linear-line {
-    stroke: rgb(238, 238, 238);
-    stroke-width: 2;
-    stroke-linecap: round;
-    fill: none;
+  &:hover {
+    background-color: #999;
+  }
+
+  &.selected {
+    background: #2196f3;
+
+    path.bezier-path {
+      stroke: #fff;
+    }
+
+    line.bezier-control-line {
+      stroke: #fff;
+    }
+
+    circle.bezier-control-circle {
+      fill: #fff;
+    }
   }
 
   path.bezier-path {

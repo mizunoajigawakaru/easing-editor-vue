@@ -3,6 +3,7 @@
     <div class="bezier-container">
       <bezier-presets
         :presets="presets"
+        :selectedPresetType="selectedPresetType"
         @apply-preset="applyPreset"
       />
       <svg
@@ -90,7 +91,9 @@ export default {
       dragStartPosition: null,
       lastMoveAmount: [0, 0],
 
+      // preset
       presets: presets.PRESET_VALUES,
+      selectedPresetType: null,
     };
   },
   created() {
@@ -124,7 +127,9 @@ export default {
       return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     },
 
-    applyPreset(value) {
+    applyPreset(name, value) {
+      console.log('applyPreset', name);
+      this.selectedPresetType = name;
       this.cubicBezierValue = value;
       this.setPositions(value);
       this.setCubicBezierPathData();
