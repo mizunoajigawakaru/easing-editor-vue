@@ -2,22 +2,17 @@ export const PRESET_TYPE_EASE_IN_OUT = 'ease-in-out';
 export const PRESET_TYPE_EASE_IN = 'ease-in';
 export const PRESET_TYPE_EASE_OUT = 'ease-out';
 
-export const PRESET_VALUES = [
+export const PRESET_TYPES = [
+    PRESET_TYPE_EASE_IN_OUT,
+    PRESET_TYPE_EASE_IN,
+    PRESET_TYPE_EASE_OUT,
+];
+
+export const PRESET_LIST_EASE_IN_OUT = [
     {
         name: PRESET_TYPE_EASE_IN_OUT,
         value: [0.42, 0, 0.58, 1],
     },
-    {
-        name: PRESET_TYPE_EASE_IN,
-        value: [0.42, 0, 1, 1],
-    },
-    {
-        name: PRESET_TYPE_EASE_OUT,
-        value: [0, 0, 0.58, 1],
-    },
-];
-
-export const PRESET_LIST_EASE_IN_OUT = [
     {
         name: 'In Out · Sine',
         value: [0.45, 0.05, 0.55, 0.95],
@@ -42,6 +37,10 @@ export const PRESET_LIST_EASE_IN_OUT = [
 
 export const PRESET_LIST_EASE_IN = [
     {
+        name: PRESET_TYPE_EASE_IN,
+        value: [0.42, 0, 1, 1],
+    },
+    {
         name: 'In · Sine',
         value: [0.47, 0, 0.75, 0.72],
     },
@@ -65,6 +64,10 @@ export const PRESET_LIST_EASE_IN = [
 
 export const PRESET_LIST_EASE_OUT = [
     {
+        name: PRESET_TYPE_EASE_OUT,
+        value: [0, 0, 0.58, 1],
+    },
+    {
         name: 'Out · Sine',
         value: [0.39, 0.58, 0.57, 1],
     },
@@ -85,3 +88,9 @@ export const PRESET_LIST_EASE_OUT = [
         value: [0.18, 0.89, 0.32, 1.28],
     },
 ];
+
+export const PRESET_LISTS = {
+    [PRESET_TYPE_EASE_IN_OUT]: PRESET_LIST_EASE_IN_OUT,
+    [PRESET_TYPE_EASE_IN]: PRESET_LIST_EASE_IN,
+    [PRESET_TYPE_EASE_OUT]: PRESET_LIST_EASE_OUT,
+};

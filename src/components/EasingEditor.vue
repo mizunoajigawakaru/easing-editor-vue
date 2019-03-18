@@ -2,7 +2,8 @@
   <div class="easing-editor">
     <div class="bezier-container">
       <bezier-presets
-        :presets="presets"
+        :preset-types="presetTypes"
+        :selectedPresetIndex="selectedPresetIndex"
         :selectedPresetType="selectedPresetType"
         @apply-preset="applyPreset"
       />
@@ -52,6 +53,24 @@
       </svg>
     </div>
     <div class="bezier-header">
+      <svg
+        v-if="selectedPresetType"
+        class="bezier-preset-modify bezier-preset-minus"
+        width="20"
+        height="20"
+        @click="changePreset(-1)"
+      >
+        <path d="M 12 6 L 8 10 L 12 14" />
+      </svg>
+      <svg
+        v-if="selectedPresetType"
+        class="bezier-preset-modify bezier-preset-plus"
+        width="20"
+        height="20"
+        @click="changePreset(1)"
+      >
+        <path d="M 8 6 L 12 10 L 8 14" />
+      </svg>
       <span class="source-code bezier-display-value">{{ displayValue }}</span>
     </div>
   </div>
@@ -92,9 +111,15 @@ export default {
       lastMoveAmount: [0, 0],
 
       // preset
-      presets: presets.PRESET_VALUES,
+      presetTypes: presets.PRESET_TYPES,
       selectedPresetType: null,
       cssDefinedEasing: null,
+      devToolDefinedEasing: null,
+      selectedPresetIndex: {
+        [presets.PRESET_TYPE_EASE_IN_OUT]: 0,
+        [presets.PRESET_TYPE_EASE_IN]: 0,
+        [presets.PRESET_TYPE_EASE_OUT]: 0,
+      },
     };
   },
   created() {
@@ -104,7 +129,13 @@ export default {
   },
   computed: {
     displayValue() {
-      return this.cssDefinedEasing ? this.cssDefinedEasing :`cubic-bezier(${this.cubicBezierValue.join(', ')})`;
+      if (this.devToolDefinedEasing) {
+        return this.devToolDefinedEasing;
+      } else if (this.cssDefinedEasing) {
+        return this.cssDefinedEasing;
+      } else {
+        return `cubic-bezier(${this.cubicBezierValue.join(', ')})`;
+      }
     },
 
     linearLinePoints() {
@@ -128,11 +159,13 @@ export default {
       return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     },
 
-    applyPreset(name, value) {
-      console.log('applyPreset', name);
+    applyPreset(name) {
+      const appliedPreset = presets.PRESET_LISTS[name][this.selectedPresetIndex[name]];
+
       this.selectedPresetType = name;
-      this.cubicBezierValue = value;
-      this.setPositions(value);
+      this.devToolDefinedEasing = appliedPreset.name;
+      this.cubicBezierValue = appliedPreset.value;
+      this.setPositions(appliedPreset.value);
       this.setCubicBezierPathData();
       this.cssDefinedEasing = name;
     },
@@ -163,7 +196,7 @@ export default {
       this.cubicBezierValue = nextCubicBezierValue;
 
       // set display value to css defined easing name if cubicBezierValue matches
-      this.presets.some(preset => {
+      this.presetTypes.some(preset => {
         if (isEqual(preset.value, nextCubicBezierValue)) {
           this.cssDefinedEasing = preset.name;
           return true;
@@ -207,6 +240,7 @@ export default {
 
       this.selectedPresetType = null;
       this.cssDefinedEasing = null;
+      this.devToolDefinedEasing = null;
       this.positions = { ...this.currentPositions };
       this.setCubicBezierValue();
       this.setCubicBezierPathData();
@@ -252,13 +286,33 @@ export default {
       return [...points].map((point, index) => {
         return index % 2 === 0 ? point + this.offset.left : point + this.offset.top;
       });
-    }
+    },
+
+    changePreset(count) {
+      const currentIndex = this.selectedPresetIndex[this.selectedPresetType];
+      const selectedPresetList = presets.PRESET_LISTS[this.selectedPresetType];
+      const nextIndex = currentIndex + count === selectedPresetList.length
+        ? 0 : currentIndex + count === -1
+        ? selectedPresetList.length -1 : currentIndex + count;
+      const nextSelectedPresetIndex = {
+        ...this.selectedPresetIndex,
+        [this.selectedPresetType]: nextIndex,
+      };
+      const selectedPreset = selectedPresetList[nextSelectedPresetIndex[this.selectedPresetType]];
+
+      this.devToolDefinedEasing = selectedPreset.name;
+      this.selectedPresetIndex = nextSelectedPresetIndex;
+      this.cubicBezierValue = selectedPreset.value;
+      this.setPositions(selectedPreset.value);
+      this.setCubicBezierPathData();
+    },
   },
 }
 </script>
 
 <style lang="scss" scoped>
 .easing-editor {
+  position: relative;
   width: 270px;
   height: 350px;
   padding: 16px;
@@ -309,8 +363,27 @@ export default {
   .bezier-display-value {
     display: block;
     width: 100%;
+    height: 20px;
+    line-height: 20px;
     text-align: center;
     white-space: nowrap;
+  }
+
+  .bezier-preset-modify {
+    background-color: #f5f5f5;
+    border-radius: 35px;
+    display: inline-block;
+    transition: transform 100ms cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: absolute;
+
+    &.bezier-preset-plus {
+      right: 16px;
+    }
+
+    &:hover {
+      background-color: #999;
+    }
   }
 }
 

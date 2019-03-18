@@ -2,13 +2,13 @@
 <div class="bezier-presets">
   <div
     class="bezier-preset-category"
-    v-for="(preset, index) in presets"
+    v-for="(preset, index) in presetTypes"
     :key="index"
-    @click="$emit('apply-preset', preset.name, preset.value)"
+    @click="$emit('apply-preset', preset)"
   >
     <bezier-preset
-      :value="preset.value"
-      :class="{ selected: preset.name === selectedPresetType }"
+      :value="getPresetValue(preset)"
+      :class="{ selected: preset === selectedPresetType }"
     />
   </div>
 </div>
@@ -16,12 +16,18 @@
 
 <script>
 import BezierPreset from './BezierPreset.vue';
+import * as presets from '../constants/presets';
 
 export default {
   name: 'BezierPresets',
-  props: ['presets', 'selectedPresetType'],
+  props: ['presetTypes', 'selectedPresetIndex', 'selectedPresetType'],
   components: {
     BezierPreset,
+  },
+  methods: {
+    getPresetValue(presetType) {
+      return presets.PRESET_LISTS[presetType][this.selectedPresetIndex[presetType]].value;
+    },
   },
 }
 </script>
