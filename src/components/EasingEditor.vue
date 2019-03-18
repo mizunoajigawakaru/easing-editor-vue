@@ -141,12 +141,7 @@ export default {
     },
 
     setCubicBezierValue() {
-      const {
-        beginX,
-        beginY,
-        endX,
-        endY,
-      } = this.positions;
+      const { beginX, beginY, endX, endY } = this.positions;
       const { width, height } = this.frame;
       const formatNumber = number => Number(number.toFixed(2));
       const nextCubicBezierValue = [
@@ -162,41 +157,32 @@ export default {
     setCubicBezierPathData() {
       const [x1, y1, x2, y2] = this.absoluteBeginControllerLinePoints;
       const [x3, y3, x4, y4] = this.absoluteEndControllerLinePoints;
-      const pathData = `M${x1} ${y1} C ${x2} ${y2}, ${x4} ${y4}, ${x3} ${y3}`;
 
-      this.cubicBezierPathData = pathData;
+      this.cubicBezierPathData = `M${x1} ${y1} C ${x2} ${y2}, ${x4} ${y4}, ${x3} ${y3}`;
     },
 
     dragstart(itemType, e) {
+      const [startX, startY] = [e.offsetX - this.offset.left, e.offsetY - this.offset.top];
+      const { beginX, beginY, endX, endY } = this.positions;
+      const distanceToBegin = this.getDistance(startX, startY, beginX, beginY);
+      const distanceToEnd = this.getDistance(startX, startY, endX, endY);
+
+      // set closer controller to move target
       this.dragStartPosition = [e.pageX, e.pageY];
-
-      const distanceToBegin = this.getDistance(
-        e.offsetX - this.offset.left,
-        e.offsetY - this.offset.top,
-        this.positions.beginX,
-        this.positions.beginY,
-      );
-
-      const distanceToEnd = this.getDistance(
-        e.offsetX - this.offset.left,
-        e.offsetY - this.offset.top,
-        this.positions.endX,
-        this.positions.endY,
-      );
-
       this.dragItemType = distanceToBegin < distanceToEnd ? 'begin' : 'end';
 
+      // move target controller to clicked position
       if (this.dragItemType === 'begin') {
         this.currentPositions = {
           ...this.positions,
-          beginX: e.offsetX - this.offset.left,
-          beginY: e.offsetY - this.offset.top,
+          beginX: startX,
+          beginY: startY,
         };
       } else {
         this.currentPositions = {
           ...this.positions,
-          endX: e.offsetX - this.offset.left,
-          endY: e.offsetY - this.offset.top,
+          endX: startX,
+          endY: startY,
         };
       }
 
@@ -206,37 +192,34 @@ export default {
     },
 
     onDrag(item, e) {
-      if (this.dragStartPosition) {
-        const [startX, startY] = this.dragStartPosition;
-        const moveAmount = [startX - e.pageX, startY - e.pageY].map(value => ~value);
+      if (!this.dragStartPosition) return;
 
-        if (!isEqual(this.lastMoveAmount, moveAmount)) {
-          this.lastMoveAmount = moveAmount;
+      const [startX, startY] = this.dragStartPosition;
+      const moveAmount = [startX - e.pageX, startY - e.pageY].map(value => ~value);
 
-          const [moveX, moveY] = moveAmount;
+      if (!isEqual(this.lastMoveAmount, moveAmount)) {
+        const [moveX, moveY] = moveAmount;
+        const { beginX, beginY, endX, endY } = this.currentPositions;
 
-          if (this.dragItemType === 'begin') {
-            const { beginX, beginY } = this.currentPositions;
-
-            this.positions = {
-              ...this.currentPositions,
-              beginX: this.currentPositions.beginX + moveX,
-              beginY: this.currentPositions.beginY + moveY,
-            };
-          } else {
-            const { endX, endY } = this.currentPositions;
-
-            this.positions = {
-              ...this.currentPositions,
-              endX: this.currentPositions.endX + moveX,
-              endY: this.currentPositions.endY + moveY,
-            };
-          }
+        if (this.dragItemType === 'begin') {
+          this.positions = {
+            ...this.currentPositions,
+            beginX: beginX + moveX,
+            beginY: beginY + moveY,
+          };
+        } else {
+          this.positions = {
+            ...this.currentPositions,
+            endX: endX + moveX,
+            endY: endY + moveY,
+          };
         }
 
-        this.setCubicBezierValue();
-        this.setCubicBezierPathData();
+        this.lastMoveAmount = moveAmount;
       }
+
+      this.setCubicBezierValue();
+      this.setCubicBezierPathData();
     },
 
     dragend() {
@@ -245,11 +228,9 @@ export default {
     },
 
     getOffsetAppliedPoints(points) {
-      const result = [...points].map((point, index) => {
+      return [...points].map((point, index) => {
         return index % 2 === 0 ? point + this.offset.left : point + this.offset.top;
       });
-
-      return result;
     }
   },
 }
@@ -281,7 +262,6 @@ export default {
 .bezier-curve {
   margin-top: -8px;
   margin-left: 32px;
-  border: solid 1px rgba(#333, .2);
 
   line.linear-line {
     stroke: rgb(238, 238, 238);
