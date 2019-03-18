@@ -98,19 +98,19 @@ export default {
     },
 
     linearLinePoints() {
-      return this.getOffsetAppliedPoints(this.relativeLinearLinePoints);
+      return this.getAbsolutePoints(this.relativeLinearLinePoints);
     },
 
     beginPoints() {
       const { height } = this.frame;
       const { beginX, beginY } = this.positions;
-      return this.getOffsetAppliedPoints([0, height, beginX, beginY]);
+      return this.getAbsolutePoints([0, height, beginX, beginY]);
     },
 
     endPoints() {
       const { width } = this.frame;
       const { endX, endY } = this.positions;
-      return this.getOffsetAppliedPoints([width, 0, endX, endY]);
+      return this.getAbsolutePoints([width, 0, endX, endY]);
     },
   },
   methods: {
@@ -217,7 +217,7 @@ export default {
       this.dragStartPosition = null;
     },
 
-    getOffsetAppliedPoints(points) {
+    getAbsolutePoints(points) {
       return [...points].map((point, index) => {
         return index % 2 === 0 ? point + this.offset.left : point + this.offset.top;
       });
