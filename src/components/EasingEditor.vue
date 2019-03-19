@@ -39,6 +39,10 @@ import BezierPresets from './BezierPresets.vue';
 import BezierCurve from './BezierCurve.vue';
 import BezierHeader from './BezierHeader.vue';
 
+const FRAME_WIDTH = 136;
+const FRAME_HEIGHT = 136;
+const OFFSET_TOP = 57;
+const OFFSET_LEFT = 7;
 const PREVIEW_DURATION = 1600;
 const PREVIEW_TRACE_COUNT = 20;
 
@@ -61,15 +65,6 @@ export default {
         endX: 0,
         endY: 0,
       },
-      frame: {
-        width: 136,
-        height: 136,
-      },
-      offset: {
-        top: 57,
-        left: 7,
-      },
-      relativeLinearLinePoints: [0, 136, 136, 0],
       dragItemType: null,
       dragStartPosition: null,
       dragstartX: 0,
@@ -129,19 +124,17 @@ export default {
     },
 
     linearLinePoints() {
-      return this.getAbsolutePoints(this.relativeLinearLinePoints);
+      return this.getAbsolutePoints([0, FRAME_HEIGHT, FRAME_WIDTH, 0]);
     },
 
     beginPoints() {
-      const { height } = this.frame;
       const { beginX, beginY } = this.positions;
-      return this.getAbsolutePoints([0, height, beginX, beginY]);
+      return this.getAbsolutePoints([0, FRAME_HEIGHT, beginX, beginY]);
     },
 
     endPoints() {
-      const { width } = this.frame;
       const { endX, endY } = this.positions;
-      return this.getAbsolutePoints([width, 0, endX, endY]);
+      return this.getAbsolutePoints([FRAME_WIDTH, 0, endX, endY]);
     },
   },
   methods: {
@@ -150,9 +143,8 @@ export default {
     },
 
     getBezier(t, currentPositions) {
-      const { width, height } = this.frame;
-      const start = { x: 0, y: height };
-      const end = { x: width, y: 0 };
+      const start = { x: 0, y: FRAME_HEIGHT };
+      const end = { x: FRAME_WIDTH, y: 0 };
       const {
         beginX,
         beginY,
@@ -196,7 +188,7 @@ export default {
       }
 
       const elapsedTime = (now - this.startTime) / PREVIEW_DURATION;
-      const position = this.previewAreaWidth - (this.previewAreaWidth * (this.getBezier(elapsedTime, this.previewPositions)[1] / this.frame.width));
+      const position = this.previewAreaWidth - (this.previewAreaWidth * (this.getBezier(elapsedTime, this.previewPositions)[1] / FRAME_WIDTH));
 
       this.bezierPreviewElement.style.transform = `translateX(${position}px)`;
       requestAnimationFrame(this.drawPreview);
@@ -217,26 +209,24 @@ export default {
     },
 
     setPositions(value) {
-      const { width, height } = this.frame;
       const [beginX, beginY, endX, endY] = value;
 
       this.positions = {
-        beginX: width * beginX,
-        beginY: height - (height * beginY),
-        endX: width * endX,
-        endY: height - (height * endY),
+        beginX: FRAME_WIDTH * beginX,
+        beginY: FRAME_HEIGHT - (FRAME_HEIGHT * beginY),
+        endX: FRAME_WIDTH * endX,
+        endY: FRAME_HEIGHT - (FRAME_HEIGHT * endY),
       };
     },
 
     setCubicBezierValue() {
       const { beginX, beginY, endX, endY } = this.positions;
-      const { width, height } = this.frame;
       const formatNumber = number => Number(number.toFixed(2));
       const nextCubicBezierValue = [
-        beginX / width,
-        (height - beginY) / height,
-        endX / width,
-        (height - endY) / height,
+        beginX / FRAME_WIDTH,
+        (FRAME_HEIGHT - beginY) / FRAME_HEIGHT,
+        endX / FRAME_WIDTH,
+        (FRAME_HEIGHT - endY) / FRAME_HEIGHT,
       ].map(number => formatNumber(number));
 
       this.cubicBezierValue = nextCubicBezierValue;
@@ -268,13 +258,13 @@ export default {
         return this.getBezier(currentTime, currentPositions);
       });
       const formatNumber = number => Number(number.toFixed(4));
-      const transformed = keyFrames.map(frame => 1 - formatNumber(frame[1] / 136));
+      const transformed = keyFrames.map(frame => 1 - formatNumber(frame[1] / FRAME_WIDTH));
 
       this.animatonTracePositions = transformed;
     },
 
     dragstart(e) {
-      const [startX, startY] = [e.offsetX - this.offset.left, e.offsetY - this.offset.top];
+      const [startX, startY] = [e.offsetX - OFFSET_LEFT, e.offsetY - OFFSET_TOP];
       const { beginX, beginY, endX, endY } = this.positions;
       const distanceToBegin = this.getDistance(startX, startY, beginX, beginY);
       const distanceToEnd = this.getDistance(startX, startY, endX, endY);
@@ -313,7 +303,7 @@ export default {
 
       const [startX, startY] = this.dragStartPosition;
       const moveAmount = [
-        clamp(startX - e.pageX, this.dragstartX - this.frame.width, this.dragstartX - this.offset.left),
+        clamp(startX - e.pageX, this.dragstartX - FRAME_WIDTH, this.dragstartX - OFFSET_LEFT),
         startY - e.pageY
       ].map(value => ~value);
 
@@ -354,7 +344,7 @@ export default {
 
     getAbsolutePoints(points) {
       return [...points].map((point, index) => {
-        return index % 2 === 0 ? point + this.offset.left : point + this.offset.top;
+        return index % 2 === 0 ? point + OFFSET_LEFT : point + OFFSET_TOP;
       });
     },
 
