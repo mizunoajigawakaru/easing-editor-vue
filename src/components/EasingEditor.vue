@@ -3,6 +3,23 @@
     class="easing-editor"
     :class="{ dragging: dragItemType }"
   >
+    <div
+      id="bezier-preview"
+      class="bezier-preview-container"
+      @click="triggerPreview"
+    >
+      <div class="bezier-preview-animation"></div>
+    </div>
+    <div class="bezier-preview">
+      <div class="bezier-preview-onion" v-if="animatonTracePositions">
+        <div
+          class="bezier-preview-animation"
+          v-for="(position, index) in animatonTracePositions"
+          :key="index"
+          :style="{ transform: `translateX(${getPosition(position)})` }">
+        </div>
+      </div>
+    </div>
     <div class="bezier-container">
       <bezier-presets
         :preset-types="presetTypes"
@@ -27,11 +44,14 @@
 </template>
 
 <script>
-import { isEqual } from 'lodash';
+import { isEqual, range } from 'lodash';
 import * as presets from '../constants/presets';
 import BezierPresets from './BezierPresets.vue';
 import BezierCurve from './BezierCurve.vue';
 import BezierHeader from './BezierHeader.vue';
+
+const PREVIEW_DURATION = 1600;
+const PREVIEW_TRACE_COUNT = 20;
 
 export default {
   name: 'EasingEditor',
@@ -74,6 +94,15 @@ export default {
         [presets.PRESET_TYPE_EASE_IN]: 0,
         [presets.PRESET_TYPE_EASE_OUT]: 0,
       },
+
+      // preview
+      previewAreaWidth: 218,
+      bezierPreviewElement: null,
+      animatonTracePositions: null,
+      previewIsRunning: false,
+      previewPositions: null,
+      startTime: 0,
+      endTime: 0,
     };
   },
   watch: {
@@ -89,6 +118,9 @@ export default {
   mounted() {
     window.addEventListener('mousemove', this.onDrag);
     window.addEventListener('mouseup', this.dragend);
+    this.bezierPreviewElement = document.getElementById('bezier-preview');
+    this.setPreview();
+    this.triggerPreview();
   },
   beforeDestroy() {
     window.removeEventListener('mousemove', this.onDrag);
@@ -126,6 +158,64 @@ export default {
       return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     },
 
+    getBezier(t, currentPositions) {
+      const { width, height } = this.frame;
+      const start = { x: 0, y: height };
+      const end = { x: width, y: 0 };
+      const {
+        beginX,
+        beginY,
+        endX,
+        endY,
+      } = currentPositions;
+
+      function getBezierPosition(P, t) {
+        if (P.length === 1) return P[0];
+        const left = getBezierPosition(P.slice(0, P.length - 1), t);
+        const right = getBezierPosition(P.slice(1, P.length), t);
+        return [(1 - t) * left[0] + t * right[0], (1 - t) * left[1] + t * right[1]];
+      }
+
+      return getBezierPosition([[start.x, start.y], [beginX, beginY], [endX, endY], [end.x, end.y]], t);
+    },
+
+    getPosition(position) {
+      return `${this.previewAreaWidth * position}px`;
+    },
+
+    triggerPreview() {
+      console.log('triggerPreview', { ...this.positions });
+      this.previewPositions = { ...this.positions };
+      this.previewIsRunning = true;
+
+      requestAnimationFrame(this.runPreview);
+    },
+
+    runPreview(timeStamp) {
+      this.startTime = timeStamp;
+      this.endTime = this.startTime + PREVIEW_DURATION;
+      this.bezierPreviewElement.style.opacity = 1;
+      this.drawPreview(timeStamp);
+    },
+
+    drawPreview(now) {
+      if (!this.previewIsRunning) {
+        this.bezierPreviewElement.style.transform = `translateX(${0}px)`;
+        this.bezierPreviewElement.style.opacity = 0;
+        return;
+      };
+
+      if (now - this.startTime >= PREVIEW_DURATION) {
+        this.previewIsRunning = false;
+      }
+
+      const currentTime = (now - this.startTime) / PREVIEW_DURATION;
+      const position = this.previewAreaWidth - (this.previewAreaWidth * (this.getBezier(currentTime, this.previewPositions)[1] / this.frame.width));
+
+      this.bezierPreviewElement.style.transform = `translateX(${position}px)`;
+      requestAnimationFrame(this.drawPreview);
+    },
+
     applyPreset(name) {
       const appliedPreset = presets.PRESET_LISTS[name][this.selectedPresetIndex[name]];
 
@@ -135,6 +225,9 @@ export default {
       this.setPositions(appliedPreset.value);
       this.setCubicBezierPathData();
       this.cssDefinedEasing = name;
+
+      this.setPreview();
+      this.triggerPreview();
     },
 
     setPositions(value) {
@@ -182,6 +275,18 @@ export default {
       this.cubicBezierPathData = `M${x1} ${y1} C ${x2} ${y2}, ${x4} ${y4}, ${x3} ${y3}`;
     },
 
+    setPreview() {
+      const currentPositions = { ...this.positions };
+      const keyFrames = range(PREVIEW_TRACE_COUNT + 1).map(index => {
+        const currentTime = index / PREVIEW_TRACE_COUNT;
+        return this.getBezier(currentTime, currentPositions);
+      });
+      const formatNumber = number => Number(number.toFixed(4));
+      const transformed = keyFrames.map(frame => 1 - formatNumber(frame[1] / 136));
+
+      this.animatonTracePositions = transformed;
+    },
+
     dragstart(e) {
       const [startX, startY] = [e.offsetX - this.offset.left, e.offsetY - this.offset.top];
       const { beginX, beginY, endX, endY } = this.positions;
@@ -207,6 +312,7 @@ export default {
         };
       }
 
+      this.animatonTracePositions = null;
       this.selectedPresetType = null;
       this.cssDefinedEasing = null;
       this.devToolDefinedEasing = null;
@@ -247,6 +353,11 @@ export default {
     },
 
     dragend() {
+      if (this.dragItemType) {
+        this.setPreview();
+        this.triggerPreview();
+      }
+
       this.dragItemType = null;
       this.dragStartPosition = null;
     },
@@ -274,18 +385,57 @@ export default {
       this.cubicBezierValue = selectedPreset.value;
       this.setPositions(selectedPreset.value);
       this.setCubicBezierPathData();
+
+      this.setPreview();
+      this.triggerPreview();
     },
   },
 }
 </script>
 
 <style lang="scss" scoped>
+.bezier-preview {
+  margin-top: -20px;
+}
+
+.bezier-preview-container {
+  position: relative;
+  width: 200%;
+  background-color: #fff;
+  overflow: hidden;
+  border-radius: 20px;
+  height: 20px;
+  z-index: 2;
+  flex-shrink: 0;
+}
+
+.bezier-preview-animation {
+  background-color: #9C27B0;
+  width: 20px;
+  height: 20px;
+  border-radius: 20px;
+  position: absolute;
+  left: auto;
+  top: auto;
+  bottom: auto;
+  right: auto;
+}
+
+.bezier-preview-onion {
+  position: relative;
+  z-index: 1;
+}
+
+.bezier-preview-onion > .bezier-preview-animation {
+  opacity: 0.1;
+}
 .easing-editor {
   position: relative;
   width: 270px;
   height: 350px;
   padding: 16px;
   border-radius: 2px;
+  overflow: hidden;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
