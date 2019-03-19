@@ -194,8 +194,8 @@ export default {
         this.previewIsRunning = false;
       }
 
-      const currentTime = (now - this.startTime) / PREVIEW_DURATION;
-      const position = this.previewAreaWidth - (this.previewAreaWidth * (this.getBezier(currentTime, this.previewPositions)[1] / this.frame.width));
+      const elapsedTime = (now - this.startTime) / PREVIEW_DURATION;
+      const position = this.previewAreaWidth - (this.previewAreaWidth * (this.getBezier(elapsedTime, this.previewPositions)[1] / this.frame.width));
 
       this.bezierPreviewElement.style.transform = `translateX(${position}px)`;
       requestAnimationFrame(this.drawPreview);
