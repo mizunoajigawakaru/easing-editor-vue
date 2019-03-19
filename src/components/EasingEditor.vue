@@ -93,12 +93,14 @@ export default {
   },
   watch: {
     cubicBezierValue() {
-      this.$emit('input', [...this.cubicBezierValue]);
+      this.$emit('input', `cubic-bezier(${this.cubicBezierValue.join(', ')})`);
     },
   },
   created() {
-    this.cubicBezierValue = [...this.value];
-    this.setPositions([...this.value]);
+    const formattedValue = this.value.replace(/(cubic-bezier\(|\))/g, '').split(',').map(Number);
+
+    this.cubicBezierValue = [...formattedValue];
+    this.setPositions([...formattedValue]);
     this.setCubicBezierPathData();
   },
   mounted() {

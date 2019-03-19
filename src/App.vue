@@ -16,7 +16,7 @@ export default {
 
   data() {
     return {
-      easing: [0.4, 0.1, 0.4, 0.8],
+      easing: 'cubic-bezier(0.4, 0.1, 0.4, 0.8)',
     };
   },
 }
