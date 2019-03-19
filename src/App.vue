@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <h1>Easing Editor</h1>
-    <easing-editor />
+    <easing-editor v-model="easing"/>
   </div>
 </template>
 
@@ -11,8 +11,14 @@ import EasingEditor from './components/EasingEditor.vue'
 export default {
   name: 'app',
   components: {
-    EasingEditor
-  }
+    EasingEditor,
+  },
+
+  data() {
+    return {
+      easing: [0.4, 0.1, 0.4, 0.8],
+    };
+  },
 }
 </script>
 

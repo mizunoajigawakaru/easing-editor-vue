@@ -40,11 +40,10 @@ export default {
     BezierPreview,
     BezierHeader,
   },
+  props: ['value'],
   data() {
     return {
-      // [x1, y1, x2, y2]
-      defaultValue: [0.45, 0.05, 0.55, 0.95],
-      cubicBezierValue: [0, 0, 0, 0],
+      cubicBezierValue: [0, 0, 1, 1],
       cubicBezierPathData: '',
       positions: {
         beginX: 0,
@@ -77,9 +76,14 @@ export default {
       },
     };
   },
+  watch: {
+    cubicBezierValue() {
+      this.$emit('input', [...this.cubicBezierValue]);
+    },
+  },
   created() {
-    this.cubicBezierValue = [...this.defaultValue];
-    this.setPositions([...this.defaultValue]);
+    this.cubicBezierValue = [...this.value];
+    this.setPositions([...this.value]);
     this.setCubicBezierPathData();
   },
   mounted() {
