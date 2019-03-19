@@ -45,7 +45,7 @@
 
 <script>
 export default {
-  name: 'BezierPreview',
+  name: 'BezierCurve',
   props: [
     'cubicBezierPathData',
     'linearLinePoints',

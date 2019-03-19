@@ -10,7 +10,7 @@
         :selectedPresetType="selectedPresetType"
         @apply-preset="applyPreset"
       />
-      <bezier-preview
+      <bezier-curve
         :linear-line-points="linearLinePoints"
         :cubic-bezier-path-data="cubicBezierPathData"
         :begin-points="beginPoints"
@@ -30,14 +30,14 @@
 import { isEqual } from 'lodash';
 import * as presets from '../constants/presets';
 import BezierPresets from './BezierPresets.vue';
-import BezierPreview from './BezierPreview.vue';
+import BezierCurve from './BezierCurve.vue';
 import BezierHeader from './BezierHeader.vue';
 
 export default {
   name: 'EasingEditor',
   components: {
     BezierPresets,
-    BezierPreview,
+    BezierCurve,
     BezierHeader,
   },
   props: ['value'],
