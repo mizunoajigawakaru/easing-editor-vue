@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import { isEqual, range } from 'lodash';
+import { clamp, isEqual, range } from 'lodash';
 import * as presets from '../constants/presets';
 import BezierPreview from './BezierPreview.vue';
 import BezierPresets from './BezierPresets.vue';
@@ -72,6 +72,7 @@ export default {
       relativeLinearLinePoints: [0, 136, 136, 0],
       dragItemType: null,
       dragStartPosition: null,
+      dragstartX: 0,
       lastMoveAmount: [0, 0],
 
       // preset
@@ -279,6 +280,7 @@ export default {
       const distanceToEnd = this.getDistance(startX, startY, endX, endY);
 
       // set closer controller to move target
+      this.dragstartX = startX;
       this.dragStartPosition = [e.pageX, e.pageY];
       this.dragItemType = distanceToBegin < distanceToEnd ? 'begin' : 'end';
 
@@ -310,7 +312,10 @@ export default {
       if (!this.dragStartPosition) return;
 
       const [startX, startY] = this.dragStartPosition;
-      const moveAmount = [startX - e.pageX, startY - e.pageY].map(value => ~value);
+      const moveAmount = [
+        clamp(startX - e.pageX, this.dragstartX - this.frame.width, this.dragstartX - this.offset.left),
+        startY - e.pageY
+      ].map(value => ~value);
 
       if (!isEqual(this.lastMoveAmount, moveAmount)) {
         const [moveX, moveY] = moveAmount;
