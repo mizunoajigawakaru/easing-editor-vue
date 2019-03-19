@@ -119,7 +119,7 @@ export default {
     window.addEventListener('mousemove', this.onDrag);
     window.addEventListener('mouseup', this.dragend);
     this.bezierPreviewElement = document.getElementById('bezier-preview');
-    this.setPreview();
+    this.setPreviewTraces();
     this.triggerPreview();
   },
   beforeDestroy() {
@@ -184,7 +184,6 @@ export default {
     },
 
     triggerPreview() {
-      console.log('triggerPreview', { ...this.positions });
       this.previewPositions = { ...this.positions };
       this.previewIsRunning = true;
 
@@ -226,7 +225,7 @@ export default {
       this.setCubicBezierPathData();
       this.cssDefinedEasing = name;
 
-      this.setPreview();
+      this.setPreviewTraces();
       this.triggerPreview();
     },
 
@@ -275,7 +274,7 @@ export default {
       this.cubicBezierPathData = `M${x1} ${y1} C ${x2} ${y2}, ${x4} ${y4}, ${x3} ${y3}`;
     },
 
-    setPreview() {
+    setPreviewTraces() {
       const currentPositions = { ...this.positions };
       const keyFrames = range(PREVIEW_TRACE_COUNT + 1).map(index => {
         const currentTime = index / PREVIEW_TRACE_COUNT;
@@ -354,7 +353,7 @@ export default {
 
     dragend() {
       if (this.dragItemType) {
-        this.setPreview();
+        this.setPreviewTraces();
         this.triggerPreview();
       }
 
@@ -386,7 +385,7 @@ export default {
       this.setPositions(selectedPreset.value);
       this.setCubicBezierPathData();
 
-      this.setPreview();
+      this.setPreviewTraces();
       this.triggerPreview();
     },
   },
