@@ -64,6 +64,21 @@ export default {
     &:hover {
       background-color: #999;
     }
+
+    &:active {
+      transform: scale(1.1);
+      background-color: #2196f3;
+
+      path {
+        stroke: white;
+      }
+    }
+
+    path {
+      stroke-width: 2;
+      stroke: black;
+      fill: none;
+    }
   }
 }
 

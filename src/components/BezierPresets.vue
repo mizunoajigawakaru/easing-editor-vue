@@ -39,6 +39,11 @@ export default {
     height: 50px;
     margin: 20px 0;
     cursor: pointer;
+    transition: transform 100ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:active {
+      transform: scale(1.05);
+    }
   }
 }
 </style>
