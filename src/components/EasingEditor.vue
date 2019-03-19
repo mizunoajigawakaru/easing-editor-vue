@@ -3,23 +3,11 @@
     class="easing-editor"
     :class="{ dragging: dragItemType }"
   >
-    <div
-      id="bezier-preview"
-      class="bezier-preview-container"
-      @click="triggerPreview"
-    >
-      <div class="bezier-preview-animation"></div>
-    </div>
-    <div class="bezier-preview">
-      <div class="bezier-preview-onion" v-if="animatonTracePositions">
-        <div
-          class="bezier-preview-animation"
-          v-for="(position, index) in animatonTracePositions"
-          :key="index"
-          :style="{ transform: `translateX(${getPosition(position)})` }">
-        </div>
-      </div>
-    </div>
+    <bezier-preview
+      :preview-area-width="previewAreaWidth"
+      :animatonTracePositions="animatonTracePositions"
+      @trigger-preview="triggerPreview"
+    />
     <div class="bezier-container">
       <bezier-presets
         :preset-types="presetTypes"
@@ -46,6 +34,7 @@
 <script>
 import { isEqual, range } from 'lodash';
 import * as presets from '../constants/presets';
+import BezierPreview from './BezierPreview.vue';
 import BezierPresets from './BezierPresets.vue';
 import BezierCurve from './BezierCurve.vue';
 import BezierHeader from './BezierHeader.vue';
@@ -56,6 +45,7 @@ const PREVIEW_TRACE_COUNT = 20;
 export default {
   name: 'EasingEditor',
   components: {
+    BezierPreview,
     BezierPresets,
     BezierCurve,
     BezierHeader,
@@ -179,10 +169,6 @@ export default {
       return getBezierPosition([[start.x, start.y], [beginX, beginY], [endX, endY], [end.x, end.y]], t);
     },
 
-    getPosition(position) {
-      return `${this.previewAreaWidth * position}px`;
-    },
-
     triggerPreview() {
       this.previewPositions = { ...this.positions };
       this.previewIsRunning = true;
@@ -202,7 +188,7 @@ export default {
         this.bezierPreviewElement.style.transform = `translateX(${0}px)`;
         this.bezierPreviewElement.style.opacity = 0;
         return;
-      };
+      }
 
       if (now - this.startTime >= PREVIEW_DURATION) {
         this.previewIsRunning = false;
@@ -393,41 +379,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.bezier-preview {
-  margin-top: -20px;
-}
-
-.bezier-preview-container {
-  position: relative;
-  width: 200%;
-  background-color: #fff;
-  overflow: hidden;
-  border-radius: 20px;
-  height: 20px;
-  z-index: 2;
-  flex-shrink: 0;
-}
-
-.bezier-preview-animation {
-  background-color: #9C27B0;
-  width: 20px;
-  height: 20px;
-  border-radius: 20px;
-  position: absolute;
-  left: auto;
-  top: auto;
-  bottom: auto;
-  right: auto;
-}
-
-.bezier-preview-onion {
-  position: relative;
-  z-index: 1;
-}
-
-.bezier-preview-onion > .bezier-preview-animation {
-  opacity: 0.1;
-}
 .easing-editor {
   position: relative;
   width: 270px;
