@@ -1,3 +1,5 @@
+export const PRESET_TYPE_EASE = 'ease';
+export const PRESET_TYPE_LINEAR = 'linear';
 export const PRESET_TYPE_EASE_IN_OUT = 'ease-in-out';
 export const PRESET_TYPE_EASE_IN = 'ease-in';
 export const PRESET_TYPE_EASE_OUT = 'ease-out';
@@ -86,6 +88,29 @@ export const PRESET_LIST_EASE_OUT = [
     {
         name: 'Out · Back',
         value: [0.18, 0.89, 0.32, 1.28],
+    },
+];
+
+export const CSS_DEFINED_EASING_LIST = [
+    {
+        name: PRESET_TYPE_EASE,
+        value: [0.25, 0.1, 0.25, 1],
+    },
+    {
+        name: PRESET_TYPE_LINEAR,
+        value: [0, 0, 1, 1],
+    },
+    {
+        name: PRESET_TYPE_EASE_IN,
+        value: [0.42, 0, 1, 1],
+    },
+    {
+        name: PRESET_TYPE_EASE_OUT,
+        value: [0, 0, 0.58, 1],
+    },
+    {
+        name: PRESET_TYPE_EASE_IN_OUT,
+        value: [0.42, 0, 0.58, 1],
     },
 ];
 

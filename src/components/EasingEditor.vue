@@ -234,11 +234,9 @@ export default {
       this.cubicBezierValue = nextCubicBezierValue;
 
       // set display value to css defined easing name if cubicBezierValue matches
-      this.presetTypes.some(preset => {
-        const presetConfig = presets.PRESET_LISTS[preset][0];
-
-        if (isEqual(presetConfig.value, nextCubicBezierValue)) {
-          this.cssDefinedEasing = presetConfig.name;
+      presets.CSS_DEFINED_EASING_LIST.some(preset => {
+        if (isEqual(preset.value, nextCubicBezierValue)) {
+          this.cssDefinedEasing = preset.name;
           return true;
         } else {
           this.cssDefinedEasing = null;
