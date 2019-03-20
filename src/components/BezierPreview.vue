@@ -59,18 +59,14 @@ export default {
   height: 20px;
   border-radius: 20px;
   position: absolute;
-  left: auto;
-  top: auto;
-  bottom: auto;
-  right: auto;
 }
 
 .bezier-preview-onion {
   position: relative;
   z-index: 1;
-}
 
-.bezier-preview-onion > .bezier-preview-animation {
-  opacity: 0.1;
+  .bezier-preview-animation {
+    opacity: 0.1;
+  }
 }
 </style>
