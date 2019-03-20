@@ -110,7 +110,6 @@ export default {
     window.addEventListener('mousemove', this.onDrag);
     window.addEventListener('mouseup', this.dragend);
     this.bezierPreviewElement = document.getElementById('bezier-preview');
-    this.setPreviewTraces();
     this.triggerPreview();
   },
   beforeDestroy() {
@@ -172,6 +171,7 @@ export default {
 
       this.previewPositions = { ...this.positions };
       this.previewIsRunning = true;
+      this.setPreviewTraces();
 
       requestAnimationFrame(this.runPreview);
     },
@@ -222,7 +222,6 @@ export default {
       this.setCubicBezierPathData();
       this.cssDefinedEasing = name;
 
-      this.setPreviewTraces();
       this.triggerPreview();
     },
 
@@ -245,7 +244,7 @@ export default {
         (FRAME_HEIGHT - beginY) / FRAME_HEIGHT,
         endX / FRAME_WIDTH,
         (FRAME_HEIGHT - endY) / FRAME_HEIGHT,
-      ].map(number => formatNumber(number));
+      ].map(formatNumber);
 
       this.cubicBezierValue = nextCubicBezierValue;
 
@@ -320,34 +319,32 @@ export default {
       const [startX, startY] = this.dragStartPosition;
       const moveAmount = [startX - e.pageX, startY - e.pageY].map(value => ~value);
 
-      if (!isEqual(this.lastMoveAmount, moveAmount)) {
-        const [moveX, moveY] = moveAmount;
-        const { beginX, beginY, endX, endY } = this.currentPositions;
+      if (isEqual(this.lastMoveAmount, moveAmount)) return;
 
-        if (this.dragItemType === 'begin') {
-          this.positions = {
-            ...this.currentPositions,
-            beginX: clamp(beginX + moveX, 0, FRAME_WIDTH),
-            beginY: beginY + moveY,
-          };
-        } else {
-          this.positions = {
-            ...this.currentPositions,
-            endX: clamp(endX + moveX, 0, FRAME_WIDTH),
-            endY: endY + moveY,
-          };
-        }
+      const [moveX, moveY] = moveAmount;
+      const { beginX, beginY, endX, endY } = this.currentPositions;
 
-        this.lastMoveAmount = moveAmount;
+      if (this.dragItemType === 'begin') {
+        this.positions = {
+          ...this.currentPositions,
+          beginX: clamp(beginX + moveX, 0, FRAME_WIDTH),
+          beginY: beginY + moveY,
+        };
+      } else {
+        this.positions = {
+          ...this.currentPositions,
+          endX: clamp(endX + moveX, 0, FRAME_WIDTH),
+          endY: endY + moveY,
+        };
       }
 
+      this.lastMoveAmount = moveAmount;
       this.setCubicBezierValue();
       this.setCubicBezierPathData();
     },
 
     dragend() {
       if (this.dragItemType) {
-        this.setPreviewTraces();
         this.triggerPreview();
       }
 
@@ -356,7 +353,7 @@ export default {
     },
 
     getAbsolutePoints(points) {
-      return [...points].map((point, index) => {
+      return points.map((point, index) => {
         return index % 2 === 0 ? point + OFFSET_LEFT : point + OFFSET_TOP;
       });
     },
@@ -379,7 +376,6 @@ export default {
       this.setPositions(selectedPreset.value);
       this.setCubicBezierPathData();
 
-      this.setPreviewTraces();
       this.triggerPreview();
     },
   },
