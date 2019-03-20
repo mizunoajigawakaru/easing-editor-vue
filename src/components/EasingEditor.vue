@@ -376,6 +376,7 @@ export default {
       };
       const selectedPreset = selectedPresetList[nextSelectedPresetIndex[this.selectedPresetType]];
 
+      this.cssDefinedEasing = nextIndex === 0 ? selectedPreset.name : null;
       this.devToolDefinedEasing = selectedPreset.name;
       this.selectedPresetIndex = nextSelectedPresetIndex;
       this.cubicBezierValue = selectedPreset.value;
