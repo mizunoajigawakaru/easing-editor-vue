@@ -171,7 +171,7 @@ export default {
       }
 
       const elapsedTime = now - this.startTime;
-      const easing = BezierEasing(...this.cubicBezierValue);
+      const easing = BezierEasing(...this.previewCubicBezierValue);
 
       if (elapsedTime >= PREVIEW_TOTAL_DURATION) {
         this.previewIsRunning = false;
