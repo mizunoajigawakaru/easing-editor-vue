@@ -185,8 +185,7 @@ export default {
 
     drawPreview(now) {
       if (!this.previewIsRunning) {
-        this.bezierPreviewElement.style.transform = `translateX(${0}px)`;
-        this.bezierPreviewElement.style.opacity = 0;
+        this.resetPreview();
         return;
       }
 
@@ -210,6 +209,13 @@ export default {
       }
 
       this.previewAnimation = requestAnimationFrame(this.drawPreview);
+    },
+
+    resetPreview() {
+      this.bezierPreviewElement.style.transform = 'translateX(0px)';
+      this.bezierPreviewElement.style.opacity = 0;
+      this.previewAnimation = null;
+      return;
     },
 
     applyPreset(name) {
