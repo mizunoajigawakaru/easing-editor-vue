@@ -37,6 +37,8 @@ export default {
 }
 
 h1 {
+  font-size: 28px;
+  font-weight: 500;
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
