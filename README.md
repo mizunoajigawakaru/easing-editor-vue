@@ -1,5 +1,7 @@
 # cubic-bezier-editor
 
+Re-implemented of the Google Chrome DevTools cubic bezier editor for study. using vue.js.
+
 ## Project setup
 ```
 yarn install
