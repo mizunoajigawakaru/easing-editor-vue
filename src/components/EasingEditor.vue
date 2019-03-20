@@ -43,7 +43,9 @@ const FRAME_WIDTH = 136;
 const FRAME_HEIGHT = 136;
 const OFFSET_TOP = 57;
 const OFFSET_LEFT = 7;
-const PREVIEW_DURATION = 1600;
+const PREVIEW_MOVE_DURATION = 1400;
+const PREVIEW_FADE_OUT_DURATION = 100;
+const PREVIEW_TOTAL_DURATION = PREVIEW_MOVE_DURATION + PREVIEW_FADE_OUT_DURATION;
 const PREVIEW_TRACE_COUNT = 20;
 
 export default {
@@ -176,7 +178,7 @@ export default {
 
     runPreview(timeStamp) {
       this.startTime = timeStamp;
-      this.endTime = this.startTime + PREVIEW_DURATION;
+      this.endTime = this.startTime + PREVIEW_TOTAL_DURATION;
       this.bezierPreviewElement.style.opacity = 1;
       this.drawPreview(timeStamp);
     },
@@ -188,14 +190,25 @@ export default {
         return;
       }
 
-      if (now - this.startTime >= PREVIEW_DURATION) {
+      const elapsedTime = now - this.startTime;
+
+      if (elapsedTime >= PREVIEW_TOTAL_DURATION) {
         this.previewIsRunning = false;
       }
 
-      const elapsedTime = (now - this.startTime) / PREVIEW_DURATION;
-      const position = this.previewAreaWidth - (this.previewAreaWidth * (this.getBezier(elapsedTime, this.previewPositions)[1] / FRAME_WIDTH));
+      // move preview
+      if (elapsedTime <= PREVIEW_MOVE_DURATION) {
+        const moveTimeRatio = elapsedTime / PREVIEW_MOVE_DURATION;
+        const position = this.previewAreaWidth - (this.previewAreaWidth * (this.getBezier(moveTimeRatio, this.previewPositions)[1] / FRAME_WIDTH));
+        this.bezierPreviewElement.style.transform = `translateX(${position}px)`;
+      }
 
-      this.bezierPreviewElement.style.transform = `translateX(${position}px)`;
+      // fade out preview
+      if (elapsedTime >= (PREVIEW_TOTAL_DURATION - PREVIEW_FADE_OUT_DURATION)) {
+        const fadeOutTimeRatio = (elapsedTime - PREVIEW_MOVE_DURATION) / PREVIEW_FADE_OUT_DURATION;
+        this.bezierPreviewElement.style.opacity = 1 - fadeOutTimeRatio;
+      }
+
       this.previewAnimation = requestAnimationFrame(this.drawPreview);
     },
 
