@@ -96,7 +96,7 @@ export default {
   },
   watch: {
     cubicBezierValue() {
-      this.$emit('input', `cubic-bezier(${this.cubicBezierValue.join(', ')})`);
+      this.$emit('input', this.cssDefinedEasing ? this.cssDefinedEasing : `cubic-bezier(${this.cubicBezierValue.join(', ')})`);
     },
   },
   created() {
