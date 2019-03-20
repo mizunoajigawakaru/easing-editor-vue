@@ -1,9 +1,8 @@
 <template>
-<div>
+<div @click="$emit('trigger-preview')">
   <div
     id="bezier-preview"
     class="bezier-preview-container"
-    @click="$emit('trigger-preview')"
   >
     <div class="bezier-preview-animation"></div>
   </div>

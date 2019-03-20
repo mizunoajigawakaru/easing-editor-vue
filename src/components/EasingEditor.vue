@@ -85,6 +85,7 @@ export default {
       previewAreaWidth: 218,
       bezierPreviewElement: null,
       animatonTracePositions: null,
+      previewAnimation: null,
       previewIsRunning: false,
       previewPositions: null,
       startTime: 0,
@@ -165,6 +166,8 @@ export default {
     },
 
     triggerPreview() {
+      if (this.previewAnimation) cancelAnimationFrame(this.previewAnimation);
+
       this.previewPositions = { ...this.positions };
       this.previewIsRunning = true;
 
@@ -193,7 +196,7 @@ export default {
       const position = this.previewAreaWidth - (this.previewAreaWidth * (this.getBezier(elapsedTime, this.previewPositions)[1] / FRAME_WIDTH));
 
       this.bezierPreviewElement.style.transform = `translateX(${position}px)`;
-      requestAnimationFrame(this.drawPreview);
+      this.previewAnimation = requestAnimationFrame(this.drawPreview);
     },
 
     applyPreset(name) {
