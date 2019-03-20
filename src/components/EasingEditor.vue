@@ -318,10 +318,7 @@ export default {
       if (!this.dragStartPosition) return;
 
       const [startX, startY] = this.dragStartPosition;
-      const moveAmount = [
-        clamp(startX - e.pageX, this.dragstartX - FRAME_WIDTH, this.dragstartX - OFFSET_LEFT),
-        startY - e.pageY
-      ].map(value => ~value);
+      const moveAmount = [startX - e.pageX, startY - e.pageY].map(value => ~value);
 
       if (!isEqual(this.lastMoveAmount, moveAmount)) {
         const [moveX, moveY] = moveAmount;
@@ -330,13 +327,13 @@ export default {
         if (this.dragItemType === 'begin') {
           this.positions = {
             ...this.currentPositions,
-            beginX: beginX + moveX,
+            beginX: clamp(beginX + moveX, 0, FRAME_WIDTH),
             beginY: beginY + moveY,
           };
         } else {
           this.positions = {
             ...this.currentPositions,
-            endX: endX + moveX,
+            endX: clamp(endX + moveX, 0, FRAME_WIDTH),
             endY: endY + moveY,
           };
         }
