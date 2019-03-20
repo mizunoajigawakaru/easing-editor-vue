@@ -38,6 +38,7 @@ import BezierPreview from './BezierPreview.vue';
 import BezierPresets from './BezierPresets.vue';
 import BezierCurve from './BezierCurve.vue';
 import BezierHeader from './BezierHeader.vue';
+import BezierEasing from 'bezier-easing';
 
 const FRAME_WIDTH = 136;
 const FRAME_HEIGHT = 136;
@@ -85,11 +86,11 @@ export default {
 
       // preview
       previewAreaWidth: 218,
+      previewCubicBezierValue: [0, 0, 1, 1],
       bezierPreviewElement: null,
       animatonTracePositions: null,
       previewAnimation: null,
       previewIsRunning: false,
-      previewPositions: null,
       startTime: 0,
       endTime: 0,
     };
@@ -146,30 +147,10 @@ export default {
       return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     },
 
-    getBezier(t, currentPositions) {
-      const start = { x: 0, y: FRAME_HEIGHT };
-      const end = { x: FRAME_WIDTH, y: 0 };
-      const {
-        beginX,
-        beginY,
-        endX,
-        endY,
-      } = currentPositions;
-
-      function getBezierPosition(P, t) {
-        if (P.length === 1) return P[0];
-        const left = getBezierPosition(P.slice(0, P.length - 1), t);
-        const right = getBezierPosition(P.slice(1, P.length), t);
-        return [(1 - t) * left[0] + t * right[0], (1 - t) * left[1] + t * right[1]];
-      }
-
-      return getBezierPosition([[start.x, start.y], [beginX, beginY], [endX, endY], [end.x, end.y]], t);
-    },
-
     triggerPreview() {
       if (this.previewAnimation) cancelAnimationFrame(this.previewAnimation);
 
-      this.previewPositions = { ...this.positions };
+      this.previewCubicBezierValue = [...this.cubicBezierValue];
       this.previewIsRunning = true;
       this.setPreviewTraces();
 
@@ -190,6 +171,7 @@ export default {
       }
 
       const elapsedTime = now - this.startTime;
+      const easing = BezierEasing(...this.cubicBezierValue);
 
       if (elapsedTime >= PREVIEW_TOTAL_DURATION) {
         this.previewIsRunning = false;
@@ -198,7 +180,7 @@ export default {
       // move preview
       if (elapsedTime <= PREVIEW_MOVE_DURATION) {
         const moveTimeRatio = elapsedTime / PREVIEW_MOVE_DURATION;
-        const position = this.previewAreaWidth - (this.previewAreaWidth * (this.getBezier(moveTimeRatio, this.previewPositions)[1] / FRAME_WIDTH));
+        const position = this.previewAreaWidth * easing(moveTimeRatio);
         this.bezierPreviewElement.style.transform = `translateX(${position}px)`;
       }
 
@@ -273,15 +255,13 @@ export default {
     },
 
     setPreviewTraces() {
-      const currentPositions = { ...this.positions };
+      const easing = BezierEasing(...this.cubicBezierValue);
       const keyFrames = range(PREVIEW_TRACE_COUNT + 1).map(index => {
         const currentTime = index / PREVIEW_TRACE_COUNT;
-        return this.getBezier(currentTime, currentPositions);
+        return easing(currentTime);
       });
-      const formatNumber = number => Number(number.toFixed(4));
-      const transformed = keyFrames.map(frame => 1 - formatNumber(frame[1] / FRAME_WIDTH));
 
-      this.animatonTracePositions = transformed;
+      this.animatonTracePositions = keyFrames;
     },
 
     dragstart(e) {
