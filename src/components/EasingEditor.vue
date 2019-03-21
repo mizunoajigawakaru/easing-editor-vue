@@ -220,7 +220,7 @@ export default {
       this.cubicBezierValue = appliedPreset.value;
       this.setPositions(appliedPreset.value);
       this.setCubicBezierPathData();
-      this.cssDefinedEasing = name;
+      this.cssDefinedEasing = this.selectedPresetIndex[name] === 0 ? name : null;
 
       this.triggerPreview();
     },
