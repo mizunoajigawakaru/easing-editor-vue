@@ -86,6 +86,7 @@ export default {
       // preview
       previewAreaWidth: 218,
       previewCubicBezierValue: [0, 0, 1, 1],
+      previewEasing: BezierEasing(0, 0, 1, 1),
       bezierPreviewElement: null,
       animatonTracePositions: null,
       previewAnimation: null,
@@ -150,6 +151,7 @@ export default {
       if (this.previewAnimation) cancelAnimationFrame(this.previewAnimation);
 
       this.previewCubicBezierValue = [...this.cubicBezierValue];
+      this.previewEasing = BezierEasing(...this.cubicBezierValue);
       this.previewIsRunning = true;
       this.setPreviewTraces();
 
@@ -170,7 +172,6 @@ export default {
       }
 
       const elapsedTime = now - this.startTime;
-      const easing = BezierEasing(...this.previewCubicBezierValue);
 
       if (elapsedTime >= PREVIEW_TOTAL_DURATION) {
         this.previewIsRunning = false;
@@ -179,7 +180,7 @@ export default {
       // move preview
       if (elapsedTime <= PREVIEW_MOVE_DURATION) {
         const moveTimeRatio = elapsedTime / PREVIEW_MOVE_DURATION;
-        const position = this.previewAreaWidth * easing(moveTimeRatio);
+        const position = this.previewAreaWidth * this.previewEasing(moveTimeRatio);
         this.bezierPreviewElement.style.transform = `translateX(${position}px)`;
       }
 
