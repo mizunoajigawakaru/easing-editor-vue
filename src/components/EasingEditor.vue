@@ -290,13 +290,13 @@ export default {
       if (this.dragItemType === 'begin') {
         this.currentPositions = {
           ...this.positions,
-          beginX: startX,
+          beginX: clamp(startX, 0, FRAME_WIDTH),
           beginY: startY,
         };
       } else {
         this.currentPositions = {
           ...this.positions,
-          endX: startX,
+          endX: clamp(startX, 0, FRAME_WIDTH),
           endY: startY,
         };
       }
