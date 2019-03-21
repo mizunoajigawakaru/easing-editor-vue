@@ -1,4 +1,6 @@
-# cubic-bezier-editor
+# easing-editor-vue
+[Demo](https://mizunoajigawakaru.github.io/easing-editor-vue/)  
+Re-implemented of the Google Chrome DevTools cubic bezier editor for study. using vue.js.
 
 ## Project setup
 ```
