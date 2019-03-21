@@ -101,10 +101,22 @@ export default {
     },
   },
   created() {
-    const formattedValue = this.value.replace(/(cubic-bezier\(|\))/g, '').split(',').map(Number);
+    let easingValue = [0, 0, 1, 1];
+    const isCssDefinedEasingText = presets.CSS_DEFINED_EASING_LIST.some(preset => {
+      if (this.value === preset.name) {
+        easingValue = preset.value;
+        this.cssDefinedEasing = preset.name;
 
-    this.cubicBezierValue = [...formattedValue];
-    this.setPositions([...formattedValue]);
+        return true;
+      }
+    });
+
+    if (!isCssDefinedEasingText) {
+      easingValue = this.value.replace(/(cubic-bezier\(|\))/g, '').split(',').map(Number);
+    }
+
+    this.cubicBezierValue = [...easingValue];
+    this.setPositions([...easingValue]);
     this.setCubicBezierPathData();
   },
   mounted() {
