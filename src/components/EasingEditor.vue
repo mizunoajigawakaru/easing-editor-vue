@@ -70,7 +70,6 @@ export default {
       },
       dragItemType: null,
       dragStartPosition: null,
-      dragstartX: 0,
       lastMoveAmount: [0, 0],
 
       // preset
@@ -271,7 +270,6 @@ export default {
       const distanceToEnd = this.getDistance(startX, startY, endX, endY);
 
       // set closer controller to move target
-      this.dragstartX = startX;
       this.dragStartPosition = [e.pageX, e.pageY];
       this.dragItemType = distanceToBegin < distanceToEnd ? 'begin' : 'end';
 
