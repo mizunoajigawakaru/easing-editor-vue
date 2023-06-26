@@ -57,7 +57,7 @@ export default {
     BezierCurve,
     BezierHeader,
   },
-  props: ['value'],
+  props: ['modelValue'],
   data() {
     return {
       cubicBezierValue: [0, 0, 1, 1],
@@ -103,7 +103,7 @@ export default {
   created() {
     let easingValue = [0, 0, 1, 1];
     const isCssDefinedEasingText = presets.CSS_DEFINED_EASING_LIST.some(preset => {
-      if (this.value === preset.name) {
+      if (this.modelValue === preset.name) {
         easingValue = preset.value;
         this.cssDefinedEasing = preset.name;
 
@@ -111,8 +111,8 @@ export default {
       }
     });
 
-    if (!isCssDefinedEasingText) {
-      easingValue = this.value.replace(/(cubic-bezier\(|\))/g, '').split(',').map(Number);
+    if (!isCssDefinedEasingText && this.modelValue) {
+      easingValue = this.modelValue.replace(/(cubic-bezier\(|\))/g, '').split(',').map(Number);
     }
 
     this.cubicBezierValue = [...easingValue];
