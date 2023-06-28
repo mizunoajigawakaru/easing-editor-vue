@@ -1,35 +1,32 @@
 <template>
-<div class="bezier-header">
-  <svg
-    v-if="selectedPresetType"
-    class="bezier-preset-modify bezier-preset-minus"
-    width="20"
-    height="20"
-    @click="$emit('change-preset', -1)"
-  >
-    <path d="M 12 6 L 8 10 L 12 14" />
-  </svg>
-  <svg
-    v-if="selectedPresetType"
-    class="bezier-preset-modify bezier-preset-plus"
-    width="20"
-    height="20"
-    @click="$emit('change-preset', 1)"
-  >
-    <path d="M 8 6 L 12 10 L 8 14" />
-  </svg>
-  <span class="source-code bezier-display-value">{{ displayValue }}</span>
-</div>
+  <div class="bezier-header">
+    <svg
+      v-if="selectedPresetType"
+      class="bezier-preset-modify bezier-preset-minus"
+      width="20"
+      height="20"
+      @click="$emit('change-preset', -1)"
+    >
+      <path d="M 12 6 L 8 10 L 12 14" />
+    </svg>
+    <svg
+      v-if="selectedPresetType"
+      class="bezier-preset-modify bezier-preset-plus"
+      width="20"
+      height="20"
+      @click="$emit('change-preset', 1)"
+    >
+      <path d="M 8 6 L 12 10 L 8 14" />
+    </svg>
+    <span class="source-code bezier-display-value">{{ displayValue }}</span>
+  </div>
 </template>
 
 <script>
 export default {
-  name: 'BezierHeader',
-  props: [
-    'selectedPresetType',
-    'displayValue',
-  ],
-}
+  name: "BezierHeader",
+  props: ["selectedPresetType", "displayValue"],
+};
 </script>
 
 <style lang="scss" scoped>

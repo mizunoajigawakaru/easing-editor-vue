@@ -1,35 +1,37 @@
 <template>
-<div class="bezier-presets">
-  <div
-    class="bezier-preset-category"
-    v-for="(preset, index) in presetTypes"
-    :key="index"
-    @click="$emit('apply-preset', preset)"
-  >
-    <bezier-preset
-      :value="getPresetValue(preset)"
-      :class="{ selected: preset === selectedPresetType }"
-    />
+  <div class="bezier-presets">
+    <div
+      class="bezier-preset-category"
+      v-for="(preset, index) in presetTypes"
+      :key="index"
+      @click="$emit('apply-preset', preset)"
+    >
+      <bezier-preset
+        :value="getPresetValue(preset)"
+        :class="{ selected: preset === selectedPresetType }"
+      />
+    </div>
   </div>
-</div>
 </template>
 
 <script>
-import BezierPreset from './BezierPreset.vue';
-import * as presets from '../constants/presets';
+import BezierPreset from "./BezierPreset.vue";
+import * as presets from "../constants/presets";
 
 export default {
-  name: 'BezierPresets',
-  props: ['presetTypes', 'selectedPresetIndex', 'selectedPresetType'],
+  name: "BezierPresets",
+  props: ["presetTypes", "selectedPresetIndex", "selectedPresetType"],
   components: {
     BezierPreset,
   },
   methods: {
     getPresetValue(presetType) {
-      return presets.PRESET_LISTS[presetType][this.selectedPresetIndex[presetType]].value;
+      return presets.PRESET_LISTS[presetType][
+        this.selectedPresetIndex[presetType]
+      ].value;
     },
   },
-}
+};
 </script>
 
 <style lang="scss" scoped>
@@ -47,4 +49,3 @@ export default {
   }
 }
 </style>
-

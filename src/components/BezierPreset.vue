@@ -1,49 +1,49 @@
 <template>
-<svg
-  class="bezier-preset"
-  width="40"
-  height="40"
->
-  <g>
-    <path class="bezier-path" :d="cubicBezierPathData" />
+  <svg class="bezier-preset" width="40" height="40">
+    <g>
+      <path class="bezier-path" :d="cubicBezierPathData" />
 
-    <line class="bezier-control-line"
-      :x1="beginPoints[0]"
-      :y1="beginPoints[1]"
-      :x2="beginPoints[2]"
-      :y2="beginPoints[3]"
-    />
-    <circle class="bezier-control-circle"
-      :cx="beginPoints[2]"
-      :cy="beginPoints[3]"
-      r="2"
-    />
+      <line
+        class="bezier-control-line"
+        :x1="beginPoints[0]"
+        :y1="beginPoints[1]"
+        :x2="beginPoints[2]"
+        :y2="beginPoints[3]"
+      />
+      <circle
+        class="bezier-control-circle"
+        :cx="beginPoints[2]"
+        :cy="beginPoints[3]"
+        r="2"
+      />
 
-    <line class="bezier-control-line"
-      :x1="endPoints[0]"
-      :y1="endPoints[1]"
-      :x2="endPoints[2]"
-      :y2="endPoints[3]"
-    />
-    <circle class="bezier-control-circle"
-      :cx="endPoints[2]"
-      :cy="endPoints[3]"
-      r="2"
-    />
-  </g>
-</svg>
+      <line
+        class="bezier-control-line"
+        :x1="endPoints[0]"
+        :y1="endPoints[1]"
+        :x2="endPoints[2]"
+        :y2="endPoints[3]"
+      />
+      <circle
+        class="bezier-control-circle"
+        :cx="endPoints[2]"
+        :cy="endPoints[3]"
+        r="2"
+      />
+    </g>
+  </svg>
 </template>
 
 <script>
 export default {
-  name: 'BezierPreset',
-  props: ['value'],
+  name: "BezierPreset",
+  props: ["value"],
   data() {
     return {
-      cubicBezierPathData: '',
+      cubicBezierPathData: "",
       offset: {
         top: 2,
-        left: 2
+        left: 2,
       },
       frame: {
         width: 36,
@@ -75,9 +75,9 @@ export default {
 
       this.positions = {
         beginX: width * beginX,
-        beginY: height - (height * beginY),
+        beginY: height - height * beginY,
         endX: width * endX,
-        endY: height - (height * endY),
+        endY: height - height * endY,
       };
     },
 
@@ -90,11 +90,13 @@ export default {
 
     getAbsolutePoints(points) {
       return [...points].map((point, index) => {
-        return index % 2 === 0 ? point + this.offset.left : point + this.offset.top;
+        return index % 2 === 0
+          ? point + this.offset.left
+          : point + this.offset.top;
       });
     },
-  }
-}
+  },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -145,4 +147,3 @@ export default {
   }
 }
 </style>
-
